@@ -1,0 +1,14 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/backend/routers/__pycache__
+/.vs/quizgen-ai/FileContentIndex
+/.vs/slnx.sqlite
+/backend/services/__pycache__
+/faiss_index
+/backend/__pycache__
+frontend/services/__pycache__/api.cpython-313.pyc
+.vs/quizgen-ai/v17/.wsuo
+.vs/VSWorkspaceState.json
+.vs/quizgen-ai/v17/DocumentLayout.json
