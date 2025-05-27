@@ -1,23 +1,31 @@
 from fastapi import APIRouter, Query, HTTPException
-from backend.services.faiss_utils import search_in_faiss
+from typing import List
+import json
+from langchain_community.vectorstores import FAISS
+from langchain_openai import OpenAIEmbeddings
 from backend.services.quiz_generator import generate_quiz
 
 router = APIRouter()
 
 @router.get("/")
-def get_quiz(query: str = Query(""), question_count: int = 3):
+def get_quiz(
+    question_count: int = Query(3),
+    question_types: str = Query("short_answer,multiple_choice,fill_in_blank")
+):
     try:
-        if not query:
-            raise HTTPException(status_code=400, detail="Musisz podać zapytanie, np. ?query=Python")
+        embeddings = OpenAIEmbeddings()
+        db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
+        docs = db.similarity_search("", k=1)
 
-        # 1. Pobierz kontekst z FAISS
-        top_chunks = search_in_faiss(query, k=3)
-        context = "\n".join(top_chunks)
+        if not docs:
+            raise HTTPException(status_code=404, detail="Brak notatki do wygenerowania quizu.")
 
-        # 2. Przekaż jako prompt do GPT
-        quiz = generate_quiz(context)
+        full_text = docs[0].metadata.get("full_text", docs[0].page_content)
+        types_list = [t.strip() for t in question_types.split(",")]
+
+        quiz = generate_quiz(full_text, question_count, types_list)
 
         return {"quiz": quiz}
-    
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Błąd generowania quizu: {str(e)}")
