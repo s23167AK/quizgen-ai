@@ -42,3 +42,15 @@ Znajdziesz tam wszystkie dostępne endpointy:
 
 ### Zatrzymanie serwera
 Wciśnij Ctrl + C w terminalu.
+
+
+## Jak uruchomić frontend
+
+Z katalogu frontend
+
+```bash
+streamlit run app.py
+```
+
+### Zatrzymanie frontu
+Wciśnij Ctrl + C w terminalu.
