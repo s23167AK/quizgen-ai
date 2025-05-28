@@ -54,3 +54,10 @@ streamlit run app.py
 
 ### Zatrzymanie frontu
 Wciśnij Ctrl + C w terminalu.
+
+
+## Jak odpalić testy
+W głównym folderze projektu quizgen-ai nalezy odpalic:
+```bash
+pytest --verbose
+```

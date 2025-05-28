@@ -12,3 +12,6 @@ frontend/services/__pycache__/api.cpython-313.pyc
 .vs/quizgen-ai/v17/.wsuo
 .vs/VSWorkspaceState.json
 .vs/quizgen-ai/v17/DocumentLayout.json
+.idea
+.venv
+venv
