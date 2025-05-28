@@ -13,14 +13,15 @@ async def upload_file(file: UploadFile = File(...)):
 
     try:
         content = read_file_content(file)
-
-        if not content.strip():
-            raise HTTPException(status_code=400, detail="Plik jest pusty lub nie zawiera czytelnego tekstu.")
-
-        embed_note_and_save_faiss(content)
-
-        return {"message": "Notatka została zindeksowana w FAISS."}
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Błąd podczas zapisu: {str(e)}")
 
+    if not content:
+        raise HTTPException(status_code=400, detail="Plik jest pusty lub nie zawiera czytelnego tekstu.")
+
+    try:
+        embed_note_and_save_faiss(content)
+
+        return {"message": "Notatka została zindeksowana w FAISS."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Błąd podczas zapisu: {str(e)}")
