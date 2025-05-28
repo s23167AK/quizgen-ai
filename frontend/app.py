@@ -30,7 +30,8 @@ if uploaded_file is not None:
 
         if st.button("📥 Pobierz quiz"):
             quiz_data = fetch_quiz(question_count, selected_types)
-            st.session_state.quiz_data = quiz_data
+            if quiz_data:
+                st.session_state.quiz_data = quiz_data
 
 if st.session_state.quiz_data:
     st.subheader("📝 Wygenerowany test:")

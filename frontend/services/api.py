@@ -1,14 +1,19 @@
 import requests
+import streamlit as st
 
 def upload_file_to_backend(file):
     files = {'file': (file.name, file, file.type)}
     try:
         response = requests.post("http://localhost:8000/upload", files=files)
-        response.raise_for_status()
-        return True
     except Exception as e:
         st.error(f"Błąd przy wysyłaniu pliku: {e}")
         return False
+
+    if not response.status_code == 200:
+        st.error(f"Błąd przy wysyłaniu pliku: {response.json().get('detail') or 'Internal server error'}")
+        return False
+
+    return True
 
 def fetch_quiz(question_count: int, question_types: list):
     try:
@@ -17,8 +22,12 @@ def fetch_quiz(question_count: int, question_types: list):
             "question_types": ",".join(question_types)
         }
         response = requests.get("http://localhost:8000/quiz", params=params)
-        response.raise_for_status()
-        return response.json().get("quiz", [])
     except Exception as e:
         st.error(f"Błąd przy pobieraniu quizu: {e}")
-        return []
+        return
+
+    if not response.status_code == 200:
+        st.error(f"Błąd przy wysyłaniu pliku: {response.json().get('detail') or 'Internal server error'}")
+        return
+
+    return response.json().get("quiz", [])
