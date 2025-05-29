@@ -61,3 +61,55 @@ W głównym folderze projektu quizgen-ai nalezy odpalic:
 ```bash
 pytest --verbose
 ```
+## 🚀 Uruchamianie aplikacji z Docker Compose
+
+### 📦 Wymagania wstępne
+
+* Zainstalowany [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+* Skonfigurowany plik `.env` z kluczem OpenAI:
+
+```
+OPENAI_API_KEY=sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+```
+
+Plik `.env` powinien znajdować się w głównym katalogu projektu (obok `docker-compose.yml`).
+
+---
+
+### ▶️ Uruchomienie aplikacji
+
+Z katalogu głównego projektu, uruchom:
+
+```bash
+docker compose up --build
+```
+
+* Backend (FastAPI) będzie dostępny pod: [http://localhost:8000](http://localhost:8000)
+* Frontend (Streamlit) będzie dostępny pod: [http://localhost:8501](http://localhost:8501)
+
+---
+
+### ⏹️ Zatrzymanie aplikacji
+
+Aby zatrzymać uruchomione kontenery, naciśnij `Ctrl+C` w terminalu, a następnie:
+
+```bash
+docker compose down
+```
+
+To polecenie:
+
+* zatrzyma i usunie kontenery
+* nie usuwa obrazów ani danych
+
+---
+
+### 🔁 Restart po zmianach
+
+Jeśli wprowadzisz zmiany w kodzie i chcesz je zobaczyć w kontenerze:
+
+```bash
+docker compose up --build
+```
+
+---
