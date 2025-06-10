@@ -304,7 +304,7 @@ def validate_state(state):
         return
 
 
-def run_chatbot(note_content: str, thread_id: str, debug=False):
+def run_chatbot(note_content: str,number_of_questions: int, thread_id: str, debug=False):
     '''
     Creates graph with given thread_id.
 
@@ -317,7 +317,7 @@ def run_chatbot(note_content: str, thread_id: str, debug=False):
     state = {
         'messages': [],
         'note_content': note_content,
-        'number_of_questions': 2,
+        'number_of_questions': number_of_questions,
         'questions': [],
         'question_index': -1,
         'question_result': None,
@@ -363,7 +363,8 @@ if __name__ == '__main__':  # Use for testing
             'żywych.')
     thread_id = 'test'
     debug = False
-    result = run_chatbot(note, thread_id, debug=debug)
+    number_of_questions = 10
+    result = run_chatbot(note, number_of_questions, thread_id, debug=debug)
     while True:
         if not result:
             break
