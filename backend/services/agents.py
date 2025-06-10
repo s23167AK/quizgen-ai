@@ -10,7 +10,6 @@ from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 from PIL import Image
 
-
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -30,11 +29,12 @@ llm = init_chat_model(
 )
 
 
+
 class Question(BaseModel):
     question_type: Literal[
         'short_answer',
         'multiple_choice',
-        'fill_in_blank'
+        'fill_in_blank',
     ] = Field(
         ...,
         description='Rodzaj pytania. Opcje do wybrania: short_answer, multiple_choice, fill_in_blank'
@@ -72,17 +72,28 @@ class State(TypedDict):
     correct_answer_count: int
     partially_correct_answer_count: int
     incorrect_answer_count: int
+    allow_short_answer: bool
+    allow_multiple_choice: bool
+    allow_fill_in_blank: bool
 
 
 def quizgen(state: State):
     quizgen_llm = llm.with_structured_output(Quiz)
     question_count = state['number_of_questions']
     note_content = state.get('note_content')
+    allow_short_answer = state.get('allow_short_answer')
+    allow_multiple_choice = state.get('allow_multiple_choice')
+    allow_fill_in_blank = state.get('allow_fill_in_blank')
 
     prompt = (
         f"Na podstawie poniższej notatki wygeneruj quiz w języku polskim.\n"
+        f"Wygeneruj jedynie zadania o typie"
         f"Liczba pytań: {question_count}.\n"
         f"NOTATKA:\n{note_content}\n\n"
+        f"Masz dostępnych kilka opcji pytań. Możesz użyć jedynie opcji z flagą: YES"
+        f"short_answer " + "YES" if allow_short_answer else "NO"
+        f"multiple_choice " + "YES" if allow_multiple_choice else "NO"
+        f"fill_in_blank " + "YES" if allow_fill_in_blank else "NO"
     )
 
     result = quizgen_llm.invoke([
@@ -304,7 +315,13 @@ def validate_state(state):
         return
 
 
-def run_chatbot(note_content: str,number_of_questions: int, thread_id: str, debug=False):
+def run_chatbot(note_content: str,
+                number_of_questions: int,
+                thread_id: str,
+                allow_short_answer=True,
+                allow_multiple_choice=True,
+                allow_fill_in_blank=True,
+                debug=False):
     '''
     Creates graph with given thread_id.
 
@@ -325,6 +342,9 @@ def run_chatbot(note_content: str,number_of_questions: int, thread_id: str, debu
         'correct_answer_count': 0,
         'incorrect_answer_count': 0,
         'partially_correct_answer_count': 0,
+        'allow_short_answer': allow_short_answer,
+        'allow_multiple_choice': allow_multiple_choice,
+        'allow_fill_in_blank': allow_fill_in_blank,
     }
     graph.invoke(state, debug=debug, config=thread_config)
 
@@ -362,9 +382,9 @@ if __name__ == '__main__':  # Use for testing
             'Fotosynteza jest podstawą życia na Ziemi – dostarcza tlenu i stanowi źródło pożywienia dla organizmów '
             'żywych.')
     thread_id = 'test'
-    debug = False
+    debug = True
     number_of_questions = 10
-    result = run_chatbot(note, number_of_questions, thread_id, debug=debug)
+    result = run_chatbot(note, number_of_questions, thread_id, allow_multiple_choice=False, debug=debug)
     while True:
         if not result:
             break
