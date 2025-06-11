@@ -159,8 +159,6 @@ def validator_agent(state: State):
     correct_answer_count = state['correct_answer_count']
     incorrect_answer_count = state['incorrect_answer_count']
     partially_correct_answer_count = state['partially_correct_answer_count']
-
-    print(result.question_result)
     
     match (result.question_result):
         case 'Correct':
