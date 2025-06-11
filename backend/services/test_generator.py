@@ -6,7 +6,7 @@ from langchain_core.messages import HumanMessage
 
 load_dotenv()
 
-def generate_quiz(note_content: str, question_count: int, question_types: list) -> list:
+def generate_test(note_content: str, question_count: int, question_types: list) -> list:
     chat = ChatOpenAI(
         model="gpt-4o",
         temperature=0.7,
