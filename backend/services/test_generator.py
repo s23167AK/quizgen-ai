@@ -3,6 +3,9 @@ import json
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
+import pytest
+
+pytest.skip("Ten plik nie jest testem", allow_module_level=True)
 
 load_dotenv()
 
