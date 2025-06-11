@@ -3,10 +3,12 @@ import json
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
-
+import logging
+logger = logging.getLogger(__name__)
 load_dotenv()
 
 def evaluate_open_answer(question: str, correct_answers: list, user_answers: list):
+    logger.info("evaluate_open_answer: question=%r, correct=%r, user=%r",question, correct_answers, user_answers)
     chat = ChatOpenAI(
         model="gpt-4o",
         temperature=0.7,
@@ -34,4 +36,5 @@ def evaluate_open_answer(question: str, correct_answers: list, user_answers: lis
     try:
         return bool(json.loads(answer))
     except Exception:
+        logger.exception("Invalid AI response format")
         raise ValueError(f"evaluate_open_answer: Niepoprawny format odpowiedzi z AI: {answer}")

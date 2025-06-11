@@ -1,10 +1,15 @@
 from fastapi import APIRouter, HTTPException, Body
 from backend.services.evaluate_open_answer import evaluate_open_answer
+import logging
 
+router = APIRouter()
+
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 @router.post("/")
 def evaluate_quiz(payload: dict = Body(...)):
+    logger.info("evaluate_quiz called with payload: %s", payload)
     try:
         quiz = payload.get("quiz", [])
         checked_quiz = []
@@ -22,4 +27,5 @@ def evaluate_quiz(payload: dict = Body(...)):
             checked_quiz.append(q_out)
         return {"quiz": checked_quiz}
     except Exception as e:
+        logger.exception("Error while evaluating quiz")
         raise HTTPException(status_code=500, detail=f"Błąd sprawdzania quizu: {str(e)}")

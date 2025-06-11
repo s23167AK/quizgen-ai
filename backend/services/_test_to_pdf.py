@@ -1,8 +1,9 @@
 from io import BytesIO
+import pytest
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
-def quiz_to_PDF(quiz) -> bytes:
+def test_to_PDF(quiz) -> bytes:
     buffer = BytesIO()
     # Stwórz canvas do rysowania PDF
     c = canvas.Canvas(buffer, pagesize=A4)
