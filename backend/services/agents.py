@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 from PIL import Image
 
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -29,6 +30,16 @@ llm = init_chat_model(
 )
 
 
+class QuestionResult(BaseModel):
+    question_result: Literal[
+        'Correct',
+        'InCorrect',
+        'PartiallyCorrect'
+    ] = Field(
+        ...,
+        description='Wynik odpowiedzi na pytanie. Dostępne opcje: Correct, InCorrect, PartiallyCorrect'
+    )
+
 
 class Question(BaseModel):
     question_type: Literal[
@@ -43,21 +54,13 @@ class Question(BaseModel):
     options: str | None = Field(
         description='Opcjonalne pole, używane tylko w przypadku użycia podanych rodzajów pytań: multiple_choice question_type. Wypisz odpowiedzi w liście alfabetycznej.')
     correct_answer: str = Field(..., description='Prawidłowa odpowiedź na pytanie')
+    user_answer: str | None = Field(description='Nie generuj tego pola')
+    question_result: QuestionResult | None = Field(description='Nie generuj tego pola')
+    explanation: str | None = Field(description='Nie generuj tego pola')
 
 
 class Quiz(BaseModel):
     questions: List[Question]
-
-
-class QuestionResult(BaseModel):
-    question_result: Literal[
-        'Correct',
-        'InCorrect',
-        'PartiallyCorrect'
-    ] = Field(
-        ...,
-        description='Wynik odpowiedzi na pytanie. Dostępne opcje: Correct, InCorrect, PartiallyCorrect'
-    )
 
 
 class State(TypedDict):
@@ -69,12 +72,13 @@ class State(TypedDict):
     question_result: QuestionResult | None
     ready_to_finish: bool
     user_answer: str
-    correct_answer_count: int
-    partially_correct_answer_count: int
-    incorrect_answer_count: int
+    # correct_answer_count: int
+    # partially_correct_answer_count: int
+    # incorrect_answer_count: int
     allow_short_answer: bool
     allow_multiple_choice: bool
     allow_fill_in_blank: bool
+    summary: str | None
 
 
 def quizgen(state: State):
@@ -84,17 +88,20 @@ def quizgen(state: State):
     allow_short_answer = state.get('allow_short_answer')
     allow_multiple_choice = state.get('allow_multiple_choice')
     allow_fill_in_blank = state.get('allow_fill_in_blank')
+    allow_short_answer_str = f"\nshort_answer " + "YES" if allow_short_answer else "NO"
+    allow_multiple_choice_str = f"\nmultiple_choice " + "YES" if allow_multiple_choice else "NO"
+    allow_fill_in_blank_str = f"\nfill_in_blank " + "YES" if allow_fill_in_blank else "NO"
 
     prompt = (
-        f"Na podstawie poniższej notatki wygeneruj quiz w języku polskim.\n"
-        f"Wygeneruj jedynie zadania o typie"
-        f"Liczba pytań: {question_count}.\n"
-        f"NOTATKA:\n{note_content}\n\n"
-        f"Masz dostępnych kilka opcji pytań. Możesz użyć jedynie opcji z flagą: YES"
-        f"short_answer " + "YES" if allow_short_answer else "NO"
-        f"multiple_choice " + "YES" if allow_multiple_choice else "NO"
-        f"fill_in_blank " + "YES" if allow_fill_in_blank else "NO"
+            f"Na podstawie poniższej notatki wygeneruj quiz w języku polskim.\n"
+            f"Liczba pytań: {question_count}.\n"
+            f"NOTATKA:\n{note_content}\n\n"
+            f"Skorzystaj z wszystkich rodzajów pytań z flagą YES."
+            + allow_short_answer_str
+            + allow_multiple_choice_str
+            + allow_fill_in_blank_str
     )
+    print(prompt)
 
     result = quizgen_llm.invoke([
         {
@@ -121,14 +128,22 @@ def next_question(state: State):
 def human(state: State):
     quiz = state.get('quiz')
     question_index = state.get('question_index')
-    question = quiz.questions[question_index]
+    current_question = quiz.questions[question_index]
+    previous_question = quiz.questions[question_index - 1] if question_index > 0 else None
     result = interrupt(
         {
-            "question": question
+            "previous_question": previous_question,
+            "current_question": current_question,
         }
     )
+    current_question.user_answer = result['answer']
+    quiz.questions[question_index] = current_question
 
-    return {'messages': [{'role': 'user', 'content': result['answer']}], 'user_answer': result['answer']}
+    return {
+        'messages': [{'role': 'user',
+                      'content': result['answer']}],
+        'user_answer': result['answer'],
+        'quiz': quiz}
 
 
 def validator_agent(state: State):
@@ -156,24 +171,14 @@ def validator_agent(state: State):
             'content': prompt
         }
     ])
-    correct_answer_count = state['correct_answer_count']
-    incorrect_answer_count = state['incorrect_answer_count']
-    partially_correct_answer_count = state['partially_correct_answer_count']
+    question.question_result = result
 
-    match (result.question_result):
-        case 'Correct':
-            correct_answer_count += 1
-        case 'InCorrect':
-            incorrect_answer_count += 1
-        case 'PartiallyCorrect':
-            partially_correct_answer_count += 1
+    quiz.questions[question_index] = question
 
     return {
         'question_result': result,
         'messages': [{'role': 'assistant', 'content': result.question_result}],
-        'correct_answer_count': correct_answer_count,
-        'incorrect_answer_count': incorrect_answer_count,
-        'partially_correct_answer_count': partially_correct_answer_count,
+        'quiz': quiz
     }
 
 
@@ -189,16 +194,30 @@ def additional_question_agent(state: State):
     question = quiz.questions[question_index]
     user_answer = state.get('user_answer')
 
+    allow_short_answer = state.get('allow_short_answer')
+    allow_multiple_choice = state.get('allow_multiple_choice')
+    allow_fill_in_blank = state.get('allow_fill_in_blank')
+    allow_short_answer_str = f"\nshort_answer " + "YES" if allow_short_answer else "NO"
+    allow_multiple_choice_str = f"\nmultiple_choice " + "YES" if allow_multiple_choice else "NO"
+    allow_fill_in_blank_str = f"\nfill_in_blank " + "YES" if allow_fill_in_blank else "NO"
+
     prompt = (
-        f"Sprawdź dokładnie odpowiedź użytkownika, porównaj ją z poprawną odpowiedzią to zadanego pytania, "
-        f"które zostało stworzone na podstawie poniższej notatki, nie zdradzaj użytkownikowi poprawnej odpowiedzi."
-        f"Wygeneruj pytanie naprowadzające użytkownika, dopytujące się o treść zadanego pytania."
-        f"Notatka: {note_content}\n"
-        f"Pytanie: {question.question}\n"
-        f"Poprawne odpowiedzi (przynajmniej jedna): {question.correct_answer}\n"
-        f"Odpowiedź użytkownika: {user_answer}\n"
-        # f"Odpowiedz tylko jednym słowem: True jeśli poprawne, False jeśli błędne."
+            f"Sprawdź dokładnie odpowiedź użytkownika, porównaj ją z poprawną odpowiedzią to zadanego pytania, "
+            f"które zostało stworzone na podstawie poniższej notatki, nie zdradzaj użytkownikowi poprawnej odpowiedzi. "
+            f"Wygeneruj nowe pytanie dotyczące poniższego pytania,"
+            f" które naprowadzi użytkownika do poniższej poprawnej odpowiedzi.\n"
+            f"Skorzystaj z wszystkich rodzajów pytań z flagą YES."
+            + allow_short_answer_str
+            + allow_multiple_choice_str
+            + allow_fill_in_blank_str +
+            f"\nMa być to pytanie pomocnicze.\n"
+            f"Notatka: {note_content}\n"
+            f"Pytanie: {question.question}\n"
+            f"Poprawne odpowiedzi (przynajmniej jedna): {question.correct_answer}\n"
+            f"Odpowiedź użytkownika: {user_answer}\n"
     )
+
+    print(prompt)
     result = additional_question_llm.invoke([
         {
             'role': 'system',
@@ -210,13 +229,18 @@ def additional_question_agent(state: State):
 
     quiz.questions.insert(question_index + 1, result)
 
-    return {'quiz': quiz}
+    number_of_questions = state['number_of_questions']
+    number_of_questions += 1
+
+    print(bcolors.OKBLUE + result.__str__() + bcolors.ENDC)
+    return {'quiz': quiz, 'number_of_questions': number_of_questions}
 
 
 def explanation_agent(state: State):
     print('explanation_agent')
+    quiz = state.get('quiz')
     question_index = state['question_index']
-    question = state['quiz'].questions[question_index]
+    question = quiz.questions[question_index]
     user_answer = state.get('user_answer')
     note_content = state['note_content']
     prompt = (
@@ -231,16 +255,20 @@ def explanation_agent(state: State):
         'content': prompt
     }])
     print(response.content)
-    return {'messages': [{'role': 'user', 'content': response.content}]}
+
+    question.explanation = response.content
+    quiz.questions[question_index] = question
+
+    return {'messages': [{'role': 'assistant', 'content': response.content}], 'quiz': quiz}
 
 
 def summary_agent(state: State):
     prompt = (
         "Podsumuj odpowiedzi użytkownika w formacie:"
         "Podsumowanie odpowiedzi"
-        f"Ilość poprawnych odpowiedzi: {state['correct_answer_count']}"
-        f"Ilość częściowo poprawnych odpowiedzi: {state['partially_correct_answer_count']}"
-        f"Ilość błędnych odpowiedzi: {state['incorrect_answer_count']}"
+        # f"Ilość poprawnych odpowiedzi: {state['correct_answer_count']}"
+        # f"Ilość częściowo poprawnych odpowiedzi: {state['partially_correct_answer_count']}"
+        # f"Ilość błędnych odpowiedzi: {state['incorrect_answer_count']}"
         "Wypisz mu na podstawie głównie błędnych odpowiedzi,"
         " może odrobine z częściowo poprawnych co powinien powtórzyć z materiału.\n"
         f"Messages: {state['messages']}"
@@ -250,7 +278,7 @@ def summary_agent(state: State):
         'content': prompt
     }])
     print(response.content)
-    return {'messages': [{'role': 'user', 'content': response.content}]}
+    return {'messages': [{'role': 'assistant', 'content': response.content}], 'summary': response.content}
 
 
 def get_question_result(state: State):
@@ -307,12 +335,20 @@ def validate_state(state):
     Validates current graph state.
 
     :param state: Current graph state.
-    :return: Returns None if quiz has ended or Question object for user.
+    :return: Returns previous question Object, current question Object and False for not finished,
+     otherwise returns previous question Object, summary in string format and True for finished.
     '''
+
     try:
-        return state.tasks[0].interrupts[0].value['question']
+        state_interrupt = state.tasks[0].interrupts[0]
+        previous_question = state_interrupt.value['previous_question']
+        current_question = state_interrupt.value['current_question']
+        return previous_question, current_question, False
     except:
-        return
+
+        previous_question = state.values['quiz'].questions[-1]
+        summary = state.values['summary']
+        return previous_question, summary, True
 
 
 def run_chatbot(note_content: str,
@@ -339,9 +375,6 @@ def run_chatbot(note_content: str,
         'question_index': -1,
         'question_result': None,
         'ready_to_finish': False,
-        'correct_answer_count': 0,
-        'incorrect_answer_count': 0,
-        'partially_correct_answer_count': 0,
         'allow_short_answer': allow_short_answer,
         'allow_multiple_choice': allow_multiple_choice,
         'allow_fill_in_blank': allow_fill_in_blank,
@@ -384,13 +417,17 @@ if __name__ == '__main__':  # Use for testing
     thread_id = 'test'
     debug = True
     number_of_questions = 10
-    result = run_chatbot(note, number_of_questions, thread_id, allow_multiple_choice=False, debug=debug)
+    previous_question, current_question, is_Finished = run_chatbot(note, number_of_questions, thread_id, debug=debug)
     while True:
-        if not result:
+        if is_Finished:
+            print(previous_question)
             break
 
+        print('--------------------')
+        print(previous_question)
         print('====================')
-        if result.options: print(result.options)
-        user_answer = input(bcolors.RED + result.question + bcolors.ENDC).strip()
+        if current_question.options: print(current_question.options)
+        user_answer = input(bcolors.RED + current_question.question + bcolors.ENDC).strip()
 
-        result = continue_chatbot(thread_id, user_answer=user_answer, debug=debug)
+        previous_question, current_question, is_Finished = continue_chatbot(thread_id, user_answer=user_answer,
+                                                                            debug=debug)
