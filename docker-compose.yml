@@ -1,19 +1,20 @@
 services:
   backend:
     build:
-      context: .                     # ważne: kontekst to root projektu
+      context: .
       dockerfile: backend/Dockerfile
     ports:
       - "8000:8000"
     env_file:
       - .env
     volumes:
-      - ./backend:/app/backend       # live-reload w dev
+      - ./backend:/app/backend
+      - ./logs:/app/logs
     restart: unless-stopped
 
   frontend:
     build:
-      context: .                      # kontekst root, stąd Dockerfile znajdzie requirements.txt
+      context: .
       dockerfile: frontend/Dockerfile
     ports:
       - "8501:8501"
@@ -22,5 +23,5 @@ services:
     depends_on:
       - backend
     volumes:
-      - ./frontend:/app/frontend      # live-reload w dev
+      - ./frontend:/app/frontend
     restart: unless-stopped

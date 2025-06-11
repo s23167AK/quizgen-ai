@@ -6,7 +6,8 @@ from langchain_openai import OpenAIEmbeddings
 from backend.services._test_generator import generate_test
 from backend.services._test_to_pdf import test_to_PDF
 from backend.services.evaluate_open_answer import evaluate_open_answer
-
+import logging
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 @router.get("/")
@@ -14,16 +15,18 @@ def get_quiz(
     question_count: int = Query(3),
     question_types: str = Query("short_answer,multiple_choice,fill_in_blank")
 ):
+    logger.info("GET /test/ called: count=%d types=%r", question_count, question_types)
     try:
         embeddings = OpenAIEmbeddings()
         db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
         docs = db.similarity_search("", k=1)
     except Exception as e:
+        logger.exception("Error in GET /test/")
         raise HTTPException(status_code=500, detail=f"Błąd generowania quizu: {str(e)}")
 
     if not docs:
         raise HTTPException(status_code=404, detail="Brak notatki do wygenerowania quizu.")
-
+    logger.info("GET /test/pdf called: count=%d types=%r", question_count, question_types)
     try:
         full_text = docs[0].metadata.get("full_text", docs[0].page_content)
         types_list = [t.strip() for t in question_types.split(",")]
@@ -33,6 +36,7 @@ def get_quiz(
         return {"quiz": quiz}
 
     except Exception as e:
+        logger.exception("Error in GET /test/pdf")
         raise HTTPException(status_code=500, detail=f"Błąd generowania quizu: {str(e)}")
     
 @router.get("/pdf")
@@ -40,11 +44,13 @@ def get_quiz_pdf(
     question_count: int = Query(3),
     question_types: str = Query("short_answer,multiple_choice,fill_in_blank")
 ):
+    logger.info("GET /test/pdf called: count=%d types=%r", question_count, question_types)
     try:
         embeddings = OpenAIEmbeddings()
         db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
         docs = db.similarity_search("", k=1)
     except Exception as e:
+        logger.exception("Error in GET /test/pdf")
         raise HTTPException(status_code=500, detail=f"Błąd generowania quizu: {str(e)}")
 
     if not docs:
@@ -63,10 +69,12 @@ def get_quiz_pdf(
         )
 
     except Exception as e:
+        logger.exception("Error in GET /test/pdf")
         raise HTTPException(status_code=500, detail=f"Błąd generowania quizu: {str(e)}")
     
 @router.post("/evaluate")
 def evaluate_quiz(payload: dict = Body(...)):
+    logger.info("POST /test/evaluate payload keys: %s", list(payload.keys()))
     try:
         quiz = payload.get("quiz", [])
         checked_quiz = []
@@ -84,4 +92,5 @@ def evaluate_quiz(payload: dict = Body(...)):
             checked_quiz.append(q_out)
         return {"quiz": checked_quiz}
     except Exception as e:
+        logger.exception("Error in POST evaluate")
         raise HTTPException(status_code=500, detail=f"Błąd sprawdzania quizu: {str(e)}")

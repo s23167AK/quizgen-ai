@@ -3,8 +3,11 @@ from fastapi import APIRouter, Body, HTTPException, Query
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from pydantic import BaseModel, Field
-
+import logging
 from backend.services.agents import run_chatbot, continue_chatbot, graph
+
+logger = logging.getLogger(__name__)
+
 
 router = APIRouter()
 
@@ -17,11 +20,13 @@ def start(
     question_count: int = Query(3),
     question_types: str = Query("short_answer,multiple_choice,fill_in_blank")
 ):
+    logger.info("START /quiz/start?question_count=%d&question_types=%r", question_count, question_types)
     try:
         embeddings = OpenAIEmbeddings()
         db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
         docs = db.similarity_search("", k=1)
     except Exception as e:
+        logger.exception("Error loading FAISS index")
         raise HTTPException(status_code=500, detail=f"Błąd pobierania notatki: {str(e)}")
 
     if not docs:
@@ -29,6 +34,7 @@ def start(
 
     try:
         full_text = docs[0].metadata.get("full_text", docs[0].page_content)
+
         types_list = [t.strip() for t in question_types.split(",")]
 
         allow_short_answer = "short_answer" in types_list
@@ -40,6 +46,7 @@ def start(
         print(allow_fill_in_blank)
 
         thread_id = str(uuid.uuid4())
+        logger.info("Generating quiz thread_id=%s", thread_id)
         result = run_chatbot(
             note_content=full_text,
             number_of_questions=question_count,
@@ -55,13 +62,17 @@ def start(
             "question": question
         }
 
+
+
     except Exception as e:
+        logger.exception("Error generating quiz")
         raise HTTPException(status_code=500, detail=f"Błąd generowania quizu: {str(e)}")
     
 @router.post("/answer")
 def answer(
     payload: QuizAnswerRequest
 ):
+    logger.info("POST /quiz/answer payload: %s", payload.dict())
     thread_id = payload.thread_id
     user_answer = payload.user_answer
 
@@ -89,4 +100,5 @@ def answer(
                 }
             }
     except Exception as e:
-       raise HTTPException(status_code=500, detail=f"Błąd obsługi odpowiedzi quizu: {str(e)}")
+        logger.exception("Error in /quiz/answer")
+        raise HTTPException(status_code=500, detail=f"Błąd obsługi odpowiedzi quizu: {str(e)}")
