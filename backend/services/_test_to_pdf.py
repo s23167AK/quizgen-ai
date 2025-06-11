@@ -3,8 +3,6 @@ import pytest
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
-pytest.skip("Ten plik nie jest testem", allow_module_level=True)
-
 def test_to_PDF(quiz) -> bytes:
     buffer = BytesIO()
     # Stwórz canvas do rysowania PDF
