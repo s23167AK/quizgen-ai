@@ -1,16 +1,14 @@
 import pytest
 
 
-class TestQuiz:
+class TestStart:
+    def test_start_returns_200(self, api_client):
+        response = api_client.get('/quiz/start/')
 
-    def test_quiz_returns_200(self, api_client):
-        reponse = api_client.get('/quiz/')
+        assert response.status_code == 200
 
-        assert reponse.status_code == 200
+    @pytest.mark.skip(reason="This situation never happens")
+    def test_start_returns_404(self, api_client):
+        response = api_client.get('/quiz/start/')
 
-    # Narazie nie można przetestowac, plik faiss _index zawsze istnieje NARAZIE
-    @pytest.mark.skip
-    def test_quiz_returns_404(self, api_client):
-        reponse = api_client.get('/quiz/')
-
-        assert reponse.status_code == 404
+        assert response.status_code == 404
