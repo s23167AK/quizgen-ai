@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from backend.routers import test, upload, quiz
-from backend.logger_config import setup_logging
+from routers import test, upload, quiz
+from logger_config import setup_logging
 
 setup_logging()
 app = FastAPI()

@@ -4,7 +4,7 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from pydantic import BaseModel, Field
 import logging
-from backend.services.agents import Question, run_chatbot, continue_chatbot, graph
+from services.agents import Question, run_chatbot, continue_chatbot, graph
 
 logger = logging.getLogger(__name__)
 

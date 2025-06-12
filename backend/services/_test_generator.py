@@ -3,7 +3,6 @@ import json
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
-import pytest
 import logging
 logger = logging.getLogger(__name__)
 

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from backend.services.file_reader import read_file_content
-from backend.services.faiss_utils import embed_note_and_save_faiss
+from services.file_reader import read_file_content
+from services.faiss_utils import embed_note_and_save_faiss
 import logging
 logger = logging.getLogger(__name__)
 router = APIRouter()
