@@ -72,9 +72,6 @@ class State(TypedDict):
     question_result: QuestionResult | None
     ready_to_finish: bool
     user_answer: str
-    # correct_answer_count: int
-    # partially_correct_answer_count: int
-    # incorrect_answer_count: int
     allow_short_answer: bool
     allow_multiple_choice: bool
     allow_fill_in_blank: bool
@@ -321,9 +318,8 @@ checkpointer = MemorySaver()
 graph = graph_builder.compile(checkpointer=checkpointer)
 
 
-def show_graph(g):
+def show_graph():
     image_data = graph.get_graph().draw_mermaid_png()
-    # image_data = dot.pipe(format='png')
 
     # Load image using Pillow
     image = Image.open(BytesIO(image_data))
@@ -406,8 +402,29 @@ def continue_chatbot(thread_id: str, user_answer: str, debug=False):
 
     return validate_state(state)
 
+def get_questions(thread_id: str):
+    '''
+    Get all the answered questions and first not answered question.
+
+    :param thread_id: Name of a thread.
+    :return: Returns list of the answered questions plus additional one.
+    '''
+    thread_config = {"configurable": {"thread_id": thread_id}}
+    state = graph.get_state(thread_config)
+    questions = state.values["quiz"].questions
+
+    answered_questions_plus_one = []
+    for q in questions:
+        if not q.user_answer:
+            answered_questions_plus_one.append(q)
+            break
+        answered_questions_plus_one.append(q)
+
+    return answered_questions_plus_one
+
 
 if __name__ == '__main__':  # Use for testing
+    #show_graph()
     note = ('Fotosynteza to proces zachodzący w roślinach zielonych,'
             ' podczas którego energia świetlna przekształcana jest w energię chemiczną. '
             'Rośliny pobierają dwutlenek węgla z powietrza i wodę z gleby,'
@@ -416,10 +433,13 @@ if __name__ == '__main__':  # Use for testing
             'żywych.')
     thread_id = 'test'
     debug = True
-    number_of_questions = 10
+    number_of_questions = 1
     previous_question, current_question, is_Finished = run_chatbot(note, number_of_questions, thread_id, debug=debug)
+
+
     while True:
         if is_Finished:
+            print(get_questions(thread_id))
             print(previous_question)
             break
 
