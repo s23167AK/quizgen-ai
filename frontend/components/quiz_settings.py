@@ -43,10 +43,7 @@ def start_quiz(mode, question_count, selected_types):
             
     elif mode == "Nauki":
         try:
-            with st.spinner("Generowanie quizu w trybie nauki..."):
-                learn_data = fetch_learn_quiz(question_count, selected_types)
-                
-            st.write("🔍 Debug - otrzymane dane z backendu:", learn_data)
+            learn_data = fetch_learn_quiz(question_count, selected_types)
             
             if learn_data:
                 if "thread_id" in learn_data:

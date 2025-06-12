@@ -46,8 +46,12 @@ if uploaded_file:
 
         with col1:
             if st.button("📥 Generuj quiz"):
-                with st.spinner("Generowanie quizu..."):
-                    start_quiz(mode, question_count, selected_types)
+                if mode == "Nauki":
+                    with st.spinner("Generowanie quizu w trybie nauki..."):
+                        start_quiz(mode, question_count, selected_types)
+                else:
+                    with st.spinner("Generowanie quizu..."):
+                        start_quiz(mode, question_count, selected_types)
 
         with col2:
             if not st.session_state.pdf_ready and not st.session_state.pdf_generating:
@@ -122,6 +126,6 @@ if st.session_state.evaluation_result:
             st.session_state.evaluation_result = []
 
     with col2:
-        if st.button("🎯 Wygeneruj nowy quiz"):
+        if st.button("🔙 Powrót do głównego menu"):
             st.session_state.quiz_data = []
             st.session_state.evaluation_result = []
