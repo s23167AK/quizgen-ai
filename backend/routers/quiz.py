@@ -4,7 +4,7 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from pydantic import BaseModel, Field
 import logging
-from backend.services.agents import run_chatbot, continue_chatbot, graph
+from backend.services.agents import Question, run_chatbot, continue_chatbot, graph
 
 logger = logging.getLogger(__name__)
 
@@ -56,13 +56,17 @@ def start(
             allow_fill_in_blank=allow_fill_in_blank,
             debug=False,
         )
-        question = result.dict() if result else None
+
+        previous_question = result[0]
+        current_question = result[1]
+        is_finished = result[2]
+
         return {
             "thread_id": thread_id,
-            "question": question
+            "previous_question": previous_question,
+            "current_question": current_question,
+            "is_finished": is_finished
         }
-
-
 
     except Exception as e:
         logger.exception("Error generating quiz")
@@ -81,24 +85,29 @@ def answer(
 
     try:
         result = continue_chatbot(thread_id=thread_id, user_answer=user_answer, debug=False)
-        if result is not None:
-            question = result.dict() if hasattr(result, "dict") else result
-            return {
-                "question": question,
-                "summary": None
-            }
+
+        previous_question = None
+        current_question = None
+        summary = None
+        is_finished = None
+
+        previous_question = result[0]
+        is_finished = result[2]
+
+        if isinstance(result[1], Question):
+            current_question = result[1]
+            summary = None
         else:
-            state = graph.get_state({"configurable": {"thread_id": thread_id}})
-            summary_msg = next(
-                (m['content'] for m in state.get('messages', []) if "Podsumowanie odpowiedzi" in m.get('content', "")),
-                None
-            )
-            return {
-                "question": None,
-                "summary": {
-                    "text": summary_msg
-                }
-            }
+            current_question = None
+            summary = result[1]
+
+        return {
+            "previous_question": previous_question,
+            "current_question": current_question,
+            "summary": summary,
+            "is_finished": is_finished
+        }
+    
     except Exception as e:
         logger.exception("Error in /quiz/answer")
         raise HTTPException(status_code=500, detail=f"Błąd obsługi odpowiedzi quizu: {str(e)}")
