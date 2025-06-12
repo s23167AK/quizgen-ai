@@ -9,6 +9,10 @@ load_dotenv()
 
 def evaluate_open_answer(question: str, correct_answers: list, user_answers: list):
     logger.info("evaluate_open_answer: question=%r, correct=%r, user=%r",question, correct_answers, user_answers)
+
+    if not user_answers or all(ans.strip() == "" for ans in user_answers):
+        return False
+    
     chat = ChatOpenAI(
         model="gpt-4o",
         temperature=0.7,
