@@ -4,10 +4,13 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
 import pytest
+import logging
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
 def generate_test(note_content: str, question_count: int, question_types: list) -> list:
+    logger.info("generate_test called: count=%d types=%r", question_count, question_types)
     chat = ChatOpenAI(
         model="gpt-4o",
         temperature=0.7,
@@ -49,7 +52,11 @@ def generate_test(note_content: str, question_count: int, question_types: list) 
     )
 
     response = chat.invoke([HumanMessage(content=prompt)])
+    logger.info("Received response of length %d", len(response.content))
     try:
+        data = json.loads(response.content)
+        logger.info("Parsed JSON successfully, got %d items", len(data))
         return json.loads(response.content)
     except json.JSONDecodeError as e:
+        logger.exception("Failed to parse JSON from AI")
         raise ValueError(f"Niepoprawny JSON wygenerowany przez AI: {e}")
