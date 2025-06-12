@@ -1,27 +1,23 @@
 services:
   backend:
     build:
-      context: .
-      dockerfile: backend/Dockerfile
+      context: backend
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
-    env_file:
-      - .env
     volumes:
-      - ./backend:/app/backend
+      - ./backend:/app
       - ./logs:/app/logs
     restart: unless-stopped
 
   frontend:
     build:
-      context: .
-      dockerfile: frontend/Dockerfile
+      context: frontend
+      dockerfile: Dockerfile
     ports:
       - "8501:8501"
-    env_file:
-      - .env
     depends_on:
       - backend
     volumes:
-      - ./frontend:/app/frontend
+      - ./frontend:/app
     restart: unless-stopped
