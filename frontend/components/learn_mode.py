@@ -78,9 +78,10 @@ def run_learn_mode():
 
         col1, col2 = st.columns([2, 4])
         with col1:
-            if st.button("✅ Wyślij odpowiedź"):
+             if st.button("✅ Wyślij odpowiedź"):
                 if user_input.strip():
-                    send_answer_to_backend(user_input.strip())
+                    with st.spinner("Weryfikacja odpowiedzi..."):
+                        send_answer_to_backend(user_input.strip())
                 else:
                     st.warning("⚠️ Wprowadź odpowiedź przed wysłaniem")
         with col2:
