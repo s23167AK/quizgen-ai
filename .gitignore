@@ -15,3 +15,5 @@ venv
 .env
 logs/app.log
 .env
+backend/faiss_index/index.faiss
+backend/faiss_index/index.pkl
