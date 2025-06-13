@@ -3,9 +3,9 @@ from io import BytesIO
 from fastapi.responses import StreamingResponse
 from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
-from backend.services._test_generator import generate_test
-from backend.services._test_to_pdf import test_to_PDF
-from backend.services.evaluate_open_answer import evaluate_open_answer
+from services._test_generator import generate_test
+from services._test_to_pdf import test_to_PDF
+from services.evaluate_open_answer import evaluate_open_answer
 import logging
 logger = logging.getLogger(__name__)
 router = APIRouter()

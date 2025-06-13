@@ -1,5 +1,4 @@
 from io import BytesIO
-import pytest
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 import logging

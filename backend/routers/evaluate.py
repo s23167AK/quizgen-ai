@@ -1,11 +1,11 @@
 from fastapi import APIRouter, HTTPException, Body
-from backend.services.evaluate_open_answer import evaluate_open_answer
+from services.evaluate_open_answer import evaluate_open_answer
 import logging
 
 router = APIRouter()
 
 logger = logging.getLogger(__name__)
-router = APIRouter()
+
 
 @router.post("/")
 def evaluate_quiz(payload: dict = Body(...)):

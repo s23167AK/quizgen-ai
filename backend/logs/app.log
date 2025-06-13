@@ -1,0 +1,132 @@
+[2025-06-13 00:03:04,841] INFO in main: Starting FastAPI application…
+[2025-06-13 00:03:05,086] INFO in _client: HTTP Request: GET http://testserver/quiz/ "HTTP/1.1 404 Not Found"
+[2025-06-13 00:03:05,274] INFO in upload: Uploading file: test.txt
+[2025-06-13 00:03:05,274] INFO in file_reader: Reading file content: test.txt
+[2025-06-13 00:03:05,274] INFO in faiss_utils: Embedding text into FAISS index at faiss_index
+[2025-06-13 00:03:08,822] INFO in _client: HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+[2025-06-13 00:03:08,826] ERROR in upload: Error indexing FAISS
+Traceback (most recent call last):
+  File "D:\Studia\Magisterskie\Rok 1 Sem 1\TEG\quizgenai\quizgen-ai\backend\.venv\Lib\site-packages\langchain_community\vectorstores\faiss.py", line 56, in dependable_faiss_import
+    import faiss
+ModuleNotFoundError: No module named 'faiss'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Studia\Magisterskie\Rok 1 Sem 1\TEG\quizgenai\quizgen-ai\backend\routers\upload.py", line 26, in upload_file
+    embed_note_and_save_faiss(content)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\Studia\Magisterskie\Rok 1 Sem 1\TEG\quizgenai\quizgen-ai\backend\services\faiss_utils.py", line 20, in embed_note_and_save_faiss
+    db = FAISS.from_documents(documents, embedding=embeddings)
+  File "D:\Studia\Magisterskie\Rok 1 Sem 1\TEG\quizgenai\quizgen-ai\backend\.venv\Lib\site-packages\langchain_core\vectorstores\base.py", line 848, in from_documents
+    return cls.from_texts(texts, embedding, metadatas=metadatas, **kwargs)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Studia\Magisterskie\Rok 1 Sem 1\TEG\quizgenai\quizgen-ai\backend\.venv\Lib\site-packages\langchain_community\vectorstores\faiss.py", line 1044, in from_texts
+    return cls.__from(
+           ~~~~~~~~~~^
+        texts,
+        ^^^^^^
+    ...<4 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "D:\Studia\Magisterskie\Rok 1 Sem 1\TEG\quizgenai\quizgen-ai\backend\.venv\Lib\site-packages\langchain_community\vectorstores\faiss.py", line 996, in __from
+    faiss = dependable_faiss_import()
+  File "D:\Studia\Magisterskie\Rok 1 Sem 1\TEG\quizgenai\quizgen-ai\backend\.venv\Lib\site-packages\langchain_community\vectorstores\faiss.py", line 58, in dependable_faiss_import
+    raise ImportError(
+    ...<3 lines>...
+    )
+ImportError: Could not import faiss python package. Please install it with `pip install faiss-gpu` (for CUDA supported GPU) or `pip install faiss-cpu` (depending on Python version).
+[2025-06-13 00:03:08,831] INFO in _client: HTTP Request: POST http://testserver/upload/ "HTTP/1.1 500 Internal Server Error"
+[2025-06-13 00:03:08,837] INFO in upload: Uploading file: test.txt
+[2025-06-13 00:03:08,837] INFO in file_reader: Reading file content: test.txt
+[2025-06-13 00:03:08,838] INFO in _client: HTTP Request: POST http://testserver/upload/ "HTTP/1.1 400 Bad Request"
+[2025-06-13 00:03:08,841] INFO in upload: Uploading file: test.md
+[2025-06-13 00:03:08,842] INFO in _client: HTTP Request: POST http://testserver/upload/ "HTTP/1.1 400 Bad Request"
+[2025-06-13 00:04:18,532] INFO in main: Starting FastAPI application…
+[2025-06-13 00:04:18,608] INFO in _client: HTTP Request: GET http://testserver/quiz/ "HTTP/1.1 404 Not Found"
+[2025-06-13 00:04:18,801] INFO in upload: Uploading file: test.txt
+[2025-06-13 00:04:18,801] INFO in file_reader: Reading file content: test.txt
+[2025-06-13 00:04:18,801] INFO in faiss_utils: Embedding text into FAISS index at faiss_index
+[2025-06-13 00:04:19,870] INFO in _client: HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+[2025-06-13 00:04:19,873] ERROR in upload: Error indexing FAISS
+Traceback (most recent call last):
+  File "D:\Studia\Magisterskie\Rok 1 Sem 1\TEG\quizgenai\quizgen-ai\backend\.venv\Lib\site-packages\langchain_community\vectorstores\faiss.py", line 56, in dependable_faiss_import
+    import faiss
+ModuleNotFoundError: No module named 'faiss'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Studia\Magisterskie\Rok 1 Sem 1\TEG\quizgenai\quizgen-ai\backend\routers\upload.py", line 26, in upload_file
+    embed_note_and_save_faiss(content)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\Studia\Magisterskie\Rok 1 Sem 1\TEG\quizgenai\quizgen-ai\backend\services\faiss_utils.py", line 20, in embed_note_and_save_faiss
+    db = FAISS.from_documents(documents, embedding=embeddings)
+  File "D:\Studia\Magisterskie\Rok 1 Sem 1\TEG\quizgenai\quizgen-ai\backend\.venv\Lib\site-packages\langchain_core\vectorstores\base.py", line 848, in from_documents
+    return cls.from_texts(texts, embedding, metadatas=metadatas, **kwargs)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Studia\Magisterskie\Rok 1 Sem 1\TEG\quizgenai\quizgen-ai\backend\.venv\Lib\site-packages\langchain_community\vectorstores\faiss.py", line 1044, in from_texts
+    return cls.__from(
+           ~~~~~~~~~~^
+        texts,
+        ^^^^^^
+    ...<4 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "D:\Studia\Magisterskie\Rok 1 Sem 1\TEG\quizgenai\quizgen-ai\backend\.venv\Lib\site-packages\langchain_community\vectorstores\faiss.py", line 996, in __from
+    faiss = dependable_faiss_import()
+  File "D:\Studia\Magisterskie\Rok 1 Sem 1\TEG\quizgenai\quizgen-ai\backend\.venv\Lib\site-packages\langchain_community\vectorstores\faiss.py", line 58, in dependable_faiss_import
+    raise ImportError(
+    ...<3 lines>...
+    )
+ImportError: Could not import faiss python package. Please install it with `pip install faiss-gpu` (for CUDA supported GPU) or `pip install faiss-cpu` (depending on Python version).
+[2025-06-13 00:04:19,876] INFO in _client: HTTP Request: POST http://testserver/upload/ "HTTP/1.1 500 Internal Server Error"
+[2025-06-13 00:04:19,882] INFO in upload: Uploading file: test.txt
+[2025-06-13 00:04:19,882] INFO in file_reader: Reading file content: test.txt
+[2025-06-13 00:04:19,883] INFO in _client: HTTP Request: POST http://testserver/upload/ "HTTP/1.1 400 Bad Request"
+[2025-06-13 00:04:19,886] INFO in upload: Uploading file: test.md
+[2025-06-13 00:04:19,887] INFO in _client: HTTP Request: POST http://testserver/upload/ "HTTP/1.1 400 Bad Request"
+[2025-06-13 00:05:52,592] INFO in main: Starting FastAPI application…
+[2025-06-13 00:05:52,671] INFO in _client: HTTP Request: GET http://testserver/quiz/ "HTTP/1.1 404 Not Found"
+[2025-06-13 00:05:52,866] INFO in upload: Uploading file: test.txt
+[2025-06-13 00:05:52,866] INFO in file_reader: Reading file content: test.txt
+[2025-06-13 00:05:52,866] INFO in faiss_utils: Embedding text into FAISS index at faiss_index
+[2025-06-13 00:05:53,953] INFO in _client: HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+[2025-06-13 00:05:53,978] INFO in loader: Loading faiss with AVX512 support.
+[2025-06-13 00:05:53,978] INFO in loader: Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+[2025-06-13 00:05:53,978] INFO in loader: Loading faiss with AVX2 support.
+[2025-06-13 00:05:54,059] INFO in loader: Successfully loaded faiss with AVX2 support.
+[2025-06-13 00:05:54,065] INFO in __init__: Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+[2025-06-13 00:05:54,067] INFO in faiss_utils: FAISS index saved to faiss_index
+[2025-06-13 00:05:54,067] INFO in upload: File test.txt indexed into FAISS
+[2025-06-13 00:05:54,068] INFO in _client: HTTP Request: POST http://testserver/upload/ "HTTP/1.1 200 OK"
+[2025-06-13 00:05:54,072] INFO in upload: Uploading file: test.txt
+[2025-06-13 00:05:54,073] INFO in file_reader: Reading file content: test.txt
+[2025-06-13 00:05:54,074] INFO in _client: HTTP Request: POST http://testserver/upload/ "HTTP/1.1 400 Bad Request"
+[2025-06-13 00:05:54,077] INFO in upload: Uploading file: test.md
+[2025-06-13 00:05:54,078] INFO in _client: HTTP Request: POST http://testserver/upload/ "HTTP/1.1 400 Bad Request"
+[2025-06-13 00:27:06,763] INFO in main: Starting FastAPI application…
+[2025-06-13 00:27:06,886] INFO in _client: HTTP Request: GET http://testserver/quiz/ "HTTP/1.1 404 Not Found"
+[2025-06-13 00:27:07,096] INFO in upload: Uploading file: test.txt
+[2025-06-13 00:27:07,096] INFO in file_reader: Reading file content: test.txt
+[2025-06-13 00:27:07,096] INFO in faiss_utils: Embedding text into FAISS index at faiss_index
+[2025-06-13 00:27:08,100] INFO in _client: HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+[2025-06-13 00:27:08,110] INFO in loader: Loading faiss with AVX512 support.
+[2025-06-13 00:27:08,110] INFO in loader: Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+[2025-06-13 00:27:08,110] INFO in loader: Loading faiss with AVX2 support.
+[2025-06-13 00:27:08,135] INFO in loader: Successfully loaded faiss with AVX2 support.
+[2025-06-13 00:27:08,142] INFO in __init__: Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+[2025-06-13 00:27:08,143] INFO in faiss_utils: FAISS index saved to faiss_index
+[2025-06-13 00:27:08,143] INFO in upload: File test.txt indexed into FAISS
+[2025-06-13 00:27:08,145] INFO in _client: HTTP Request: POST http://testserver/upload/ "HTTP/1.1 200 OK"
+[2025-06-13 00:27:08,150] INFO in upload: Uploading file: test.txt
+[2025-06-13 00:27:08,150] INFO in file_reader: Reading file content: test.txt
+[2025-06-13 00:27:08,151] INFO in _client: HTTP Request: POST http://testserver/upload/ "HTTP/1.1 400 Bad Request"
+[2025-06-13 00:27:08,155] INFO in upload: Uploading file: test.md
+[2025-06-13 00:27:08,156] INFO in _client: HTTP Request: POST http://testserver/upload/ "HTTP/1.1 400 Bad Request"
