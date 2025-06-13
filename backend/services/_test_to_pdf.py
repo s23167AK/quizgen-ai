@@ -5,9 +5,13 @@ from reportlab.lib.units import mm
 from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+import os
 
-pdfmetrics.registerFont(TTFont('DejaVu', 'fonts/DejaVuSans.ttf'))
-pdfmetrics.registerFont(TTFont('DejaVuBold', 'fonts/DejaVuSans-Bold.ttf'))
+FONT_PATH = os.path.join(os.path.dirname(__file__), '..', 'fonts', 'DejaVuSans.ttf')
+pdfmetrics.registerFont(TTFont('DejaVu', FONT_PATH))
+
+FONT_PATH_BOLD = os.path.join(os.path.dirname(__file__), '..', 'fonts', 'DejaVuSans-Bold.ttf')
+pdfmetrics.registerFont(TTFont('DejaVuBold', FONT_PATH))
 
 def split_text_to_lines(text, font_name, font_size, max_width):
     """Dzieli tekst na linie mieszczące się w max_width."""
