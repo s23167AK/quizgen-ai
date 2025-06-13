@@ -24,11 +24,13 @@ if "learn_data" not in st.session_state:
 if "learn_mode" not in st.session_state:
     st.session_state.learn_mode = False
 
-# Upload pliku
 uploaded_file = st.file_uploader("📎 Wrzuć plik z notatkami (.pdf lub .txt)", type=["pdf", "txt"])
 
 if uploaded_file:
-    if upload_file_to_backend(uploaded_file):
+    with st.spinner("Trwa przesyłanie pliku..."):
+        success = upload_file_to_backend(uploaded_file)
+
+    if success:
         st.success("✅ Plik został przesłany!")
 
         mode, question_count, selected_types = select_quiz_settings()
